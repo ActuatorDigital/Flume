@@ -1,0 +1,17 @@
+{
+  "name": "com.air.flume",
+  "displayName": "Flume",
+  "version": "0.0.1",
+  "unity": "2019.2",
+  "keywords": [
+    "Dependency Injection",
+    "An Imagined Reality",
+    "AIR"
+  ],
+  "dependencies": {
+    "com.unity.test-framework": "1.0.13",
+    "com.unity.ext.nunit": "1.0.0"
+  },
+  "relatedPackages": {},
+  "description": "AIR's dependency injection framework."
+}
