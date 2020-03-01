@@ -10,10 +10,10 @@ namespace AIR.Flume {
         private static Injector _injector;
 
         private readonly ServiceRegister _register;
-        private static Queue<DependentBehaviour> _earlyDependents;
+        private static Queue<IDependent> _earlyDependents;
 
         public FlumeServiceContainer() {
-            _earlyDependents = new Queue<DependentBehaviour>();
+            _earlyDependents = new Queue<IDependent>();
             _register = new ServiceRegister();
         }
 
@@ -25,21 +25,24 @@ namespace AIR.Flume {
             }
         }
 
-        public void Register<TService>() where TService : class {
+        public FlumeServiceContainer Register<TService>() where TService : class {
             _register.Register<TService>();
+            return this;
         }
 
-        public void Register<TService>(TService instance) 
+        public FlumeServiceContainer Register<TService>(TService instance) 
             where TService : class 
         {
             _register.Register(instance);
+            return this;
         }
 
-        public void Register<TService, TImplementation>() 
+        public FlumeServiceContainer Register<TService, TImplementation>() 
             where TService : class 
             where TImplementation : TService 
         {
-            _register.Register<TService, TImplementation>();    
+            _register.Register<TService, TImplementation>();
+            return this;
         }
 
         private void OnDestroy() {
@@ -48,7 +51,13 @@ namespace AIR.Flume {
             _earlyDependents.Clear();
         }
 
-        public static void QueueInjection(DependentBehaviour dependentBehaviour) {
+        public static void QueueInjection(Dependent dependent) =>
+            QueueInjection(dependent as IDependent);
+
+        public static void QueueInjection(DependentBehaviour dependentBehaviour) => 
+            QueueInjection(dependentBehaviour as IDependent);
+        
+        private static void QueueInjection(IDependent dependentBehaviour) {
             if(_injector == null && _earlyDependents != null)
                 _earlyDependents.Enqueue(dependentBehaviour);
             else 

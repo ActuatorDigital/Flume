@@ -33,11 +33,11 @@ public class DependentBehaviourTests {
     private class MockIndependentBehaviour : DependentBehaviour { }
     
     [Test]
-    public void Instantiation_WithInjectionInChild_InjectsChildClass() {
+    public void Instantiation_WithInjectionInChild_CallsInjectOnInstance() {
         
         // Act
         var waker = new GameObject("AwakeTest")
-            .AddComponent<MockDependentWithAwakeAndPrivateInject>();
+            .AddComponent<MockDependentBehaviourWithAwakeAndPrivateInject>();
         
         Assert.IsTrue(waker.Injected);
         
@@ -48,13 +48,13 @@ public class DependentBehaviourTests {
         
         // Act
         var waker = new GameObject("AwakeTest")
-            .AddComponent<MockDependentWithAwakeAndPrivateInject>();
+            .AddComponent<MockDependentBehaviourWithAwakeAndPrivateInject>();
         
         Assert.IsTrue(waker.Injected);
         
     }
 
-    private class MockDependentWithAwakeAndPrivateInject : DependentBehaviour {
+    private class MockDependentBehaviourWithAwakeAndPrivateInject : DependentBehaviour {
         public bool Started = false, Injected = false;
         void Inject() => Injected = true;
         void Start() => Started = true;
@@ -135,7 +135,6 @@ public class DependentBehaviourTests {
     }
     
     private class MockService { }
-
 
 }
 

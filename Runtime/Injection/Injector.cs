@@ -6,7 +6,7 @@ using System.Reflection;
 using UnityEngine;
 
 namespace AIR.Flume {
-    public class Injector
+    internal class Injector
     {
         private const string INJECT = "Inject";
         private readonly FlumeServiceContainer _container;
@@ -14,9 +14,8 @@ namespace AIR.Flume {
         public Injector(FlumeServiceContainer container) {
             _container = container;
         }
-
-        public void InjectDependencies( DependentBehaviour dependent ) {
-
+        
+        internal void InjectDependencies( IDependent dependent ) {
             if (_container == null) {
                 Debug.LogWarning(
                     "Skipping Injection. " +
@@ -45,24 +44,6 @@ namespace AIR.Flume {
             
         }
 
-        // private class LateInjector : MonoBehaviour {
-        //     
-        //     private Action<UnityServiceContainer> _lateInjection;
-        //     private UnityServiceContainer _container;
-        //
-        //     private void Start() {
-        //         _lateInjection.Invoke(_container);
-        //         Destroy(gameObject);
-        //     }
-        //     
-        //     public void ProcessInjection(
-        //         Action<UnityServiceContainer> injectDependencies, 
-        //         UnityServiceContainer container
-        //     ) {
-        //         _lateInjection = injectDependencies;
-        //         _container = container;
-        //     }
-        // }
     }
     
 }
