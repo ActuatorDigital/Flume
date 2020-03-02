@@ -6,7 +6,7 @@ namespace AIR.Flume {
     public class Dependent : IDependent {
 
         public Dependent() => 
-            FlumeServiceContainer.QueueInjection(this);
+            FlumeServiceContainer.InjectThis(this);
 
     }    
 }

@@ -51,13 +51,13 @@ namespace AIR.Flume {
             _earlyDependents.Clear();
         }
 
-        public static void QueueInjection(Dependent dependent) =>
-            QueueInjection(dependent as IDependent);
+        public static void InjectThis(Dependent dependent) =>
+            InjectThis(dependent as IDependent);
 
-        public static void QueueInjection(DependentBehaviour dependentBehaviour) => 
-            QueueInjection(dependentBehaviour as IDependent);
+        public static void InjectThis(DependentBehaviour dependentBehaviour) => 
+            InjectThis(dependentBehaviour as IDependent);
         
-        private static void QueueInjection(IDependent dependentBehaviour) {
+        private static void InjectThis(IDependent dependentBehaviour) {
             if(_injector == null && _earlyDependents != null)
                 _earlyDependents.Enqueue(dependentBehaviour);
             else 

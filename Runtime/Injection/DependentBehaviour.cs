@@ -5,7 +5,7 @@ namespace AIR.Flume {
     public abstract class DependentBehaviour : MonoBehaviour, IDependent {
         
         protected virtual void Awake() => 
-            FlumeServiceContainer.QueueInjection(this);
+            FlumeServiceContainer.InjectThis(this);
 
     }
     
