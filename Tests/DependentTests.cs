@@ -39,10 +39,10 @@ public class DependentTests
     public void Construction_WithInjectionInChild_InjectsChildClass() {
         
         // Act
-        var waker = new MockDependentWithAwakeAndPrivateInject();
+        var awaker = new MockDependentWithAwakeAndPrivateInject();
         
         // Assert
-        Assert.IsTrue(waker.Injected);
+        Assert.IsTrue(awaker.Injected);
         
     }
     
@@ -50,10 +50,10 @@ public class DependentTests
     public void Construction_WithInjectionInChild_CallsChildConstructor() {
         
         // Act
-        var waker = new MockDependentWithAwakeAndPrivateInject();
+        var awaker = new MockDependentWithAwakeAndPrivateInject();
         
         // Assert
-        Assert.IsTrue(waker.Constructed);
+        Assert.IsTrue(awaker.Constructed);
         
     }
     
@@ -98,14 +98,14 @@ public class DependentTests
     private class MockService { }
 
     [Test]
-    public void Constuction_WithMultipleDependencies_InjectsAllDependencies() {
+    public void Construction_WithMultipleDependencies_InjectsAllDependencies() {
         // Arrange
         _container
             .Register<MockDependentOne>()
             .Register<MockDependentTwo>()
             .Register<MockDependentThree>()
             .Register<MockDependentFour>()
-            .Register<MockDependentFive>()
+            .Register<MockDecedentFive>()
             .Register<MockDependentSix>();
         
         // Act
@@ -134,7 +134,7 @@ public class DependentTests
             MockDependentTwo two,
             MockDependentThree three,
             MockDependentFour four,
-            MockDependentFive five,
+            MockDecedentFive five,
             MockDependentSix six
         ) {
             FirstDependentInjected = one != null;
@@ -151,7 +151,41 @@ public class DependentTests
     private class MockDependentTwo { }
     private class MockDependentThree { }
     private class MockDependentFour { }
-    private class MockDependentFive { }
+    private class MockDecedentFive { }
     private class MockDependentSix { }
+
+    
+    [Test]
+    public void InjectInBaseAndChild_DifferentInjectDependencies_CallsAllInjects() {
+        
+        // Arrange
+        _container.Register<MockService>();
+        _container.Register<DifferentMockService>();
+        
+        // Act
+        var differentInjectedDecedent = new DifferentMockInjectedAncestor();
+        
+        // Assert
+        Assert.IsTrue(differentInjectedDecedent.AncestorInjected);
+        Assert.IsTrue(differentInjectedDecedent.DifferentAncestorInjected);
+    }
+    
+    private class MockInjectedAncestor : Dependent {
+
+        public bool AncestorInjected = false;
+
+        public void Inject(MockService mock) => AncestorInjected = true;
+        
+    }
+    
+    private class DifferentMockInjectedAncestor : MockInjectedAncestor {
+
+        public bool DifferentAncestorInjected = false;
+
+        public void Inject(DifferentMockService mock) => DifferentAncestorInjected = true;
+        
+    }
+
+    private class DifferentMockService { }
 
 }

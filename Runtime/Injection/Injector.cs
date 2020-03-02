@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,25 +22,28 @@ namespace AIR.Flume {
                     "No UnityServiceContainer container found in scene.");
                 return;
             }
-            
-            var injectMethod = dependent.GetType().GetMethod(INJECT);
-            if(injectMethod == null)
-                injectMethod = dependent.GetType().GetMethod(INJECT,
-                    BindingFlags.NonPublic | BindingFlags.Instance);
-            if(injectMethod == null) return;
-        
-            var typeDependencies = injectMethod
-                .GetParameters()
-                .Select(p => p.ParameterType)
-                .ToArray();
+
+            var publicMethods = dependent.GetType().GetMethods();
+            var privateMethods = dependent.GetType().GetMethods(
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            var methods = publicMethods
+                .Concat(privateMethods)
+                .Distinct();
+            foreach (var injectMethod in methods) {
+                if (injectMethod.Name != INJECT) continue;
+                var typeDependencies = injectMethod
+                    .GetParameters()
+                    .Select(p => p.ParameterType)
+                    .ToArray();
                 
-            var dependentServices = new List<object>();
-            foreach (var dependentType in typeDependencies) {
-                var service = _container.Resolve(dependentType);
-                dependentServices.Add(service);
-            }
+                var dependentServices = new List<object>();
+                foreach (var dependentType in typeDependencies) {
+                    var service = _container.Resolve(dependentType);
+                    dependentServices.Add(service);
+                }
         
-            injectMethod.Invoke(dependent, dependentServices.ToArray());
+                injectMethod.Invoke(dependent, dependentServices.ToArray());    
+            }
             
         }
 

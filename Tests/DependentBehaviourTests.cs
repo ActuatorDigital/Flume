@@ -58,7 +58,6 @@ public class DependentBehaviourTests {
         public bool Started = false, Injected = false;
         void Inject() => Injected = true;
         void Start() => Started = true;
-
     }
     
     [Test]
@@ -134,7 +133,42 @@ public class DependentBehaviourTests {
         
     }
     
+    [Test]
+    public void InjectInBaseAndChild_DifferentInjectDependencies_CallsAllInjects() {
+        
+        // Arrange
+        _container.Register<MockService>();
+        _container.Register<DifferentMockService>();
+        
+        // Act
+        var differentInjectedDecedent = new GameObject("Decedent")
+            .AddComponent<DifferentMockInjectedAncestor>();
+        
+        // Assert
+        Assert.IsTrue(differentInjectedDecedent.AncestorInjected);
+        Assert.IsTrue(differentInjectedDecedent.DifferentAncestorInjected);
+    }
+    
+    private class MockInjectedAncestor : DependentBehaviour {
+
+        public bool AncestorInjected = false;
+
+        public void Inject(MockService mock) => AncestorInjected = true;
+        
+    }
+    
+    private class DifferentMockInjectedAncestor : MockInjectedAncestor {
+
+        public bool DifferentAncestorInjected = false;
+
+        public void Inject(DifferentMockService mock) => DifferentAncestorInjected = true;
+        
+    }
+
     private class MockService { }
+
+    private class DifferentMockService { }
+
 
 }
 
