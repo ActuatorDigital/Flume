@@ -1,7 +1,7 @@
 {
   "name": "com.air.flume",
   "displayName": "Flume",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "unity": "2019.2",
   "keywords": [
     "Dependency Injection",

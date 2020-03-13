@@ -39,9 +39,14 @@ namespace AIR.Flume {
 
         public FlumeServiceContainer Register<TService, TImplementation>() 
             where TService : class 
-            where TImplementation : TService 
-        {
-            _register.Register<TService, TImplementation>();
+            where TImplementation : TService {
+            
+            if (typeof(TImplementation).IsSubclassOf(typeof(MonoBehaviour))) {
+                var component = gameObject.AddComponent(typeof(TImplementation));
+                _register.Register(component as TService);
+            }else
+                _register.Register<TService, TImplementation>();
+            
             return this;
         }
 
