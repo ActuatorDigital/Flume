@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace AIR.Flume {
@@ -42,8 +43,11 @@ namespace AIR.Flume {
             where TImplementation : TService {
             
             if (typeof(TImplementation).IsSubclassOf(typeof(MonoBehaviour))) {
-                var component = gameObject.AddComponent(typeof(TImplementation));
-                _register.Register(component as TService);
+                Component monoBehaviour = FindObjectsOfType<MonoBehaviour>()
+                    .FirstOrDefault(mb => mb is TImplementation);
+                if(monoBehaviour == null)
+                    monoBehaviour = gameObject.AddComponent(typeof(TImplementation));
+                _register.Register(monoBehaviour as TService);
             }else
                 _register.Register<TService, TImplementation>();
             
