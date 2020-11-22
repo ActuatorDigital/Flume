@@ -10,6 +10,7 @@ namespace AIR.Flume {
         private Dictionary<Type, object> _services = new Dictionary<Type, object>();
         
         internal object Resolve(Type t) {
+            
             if (_services.ContainsKey(t))
                 return _services[t];
             

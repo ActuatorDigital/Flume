@@ -10,19 +10,14 @@ namespace AIR.Flume {
         public event Action<FlumeServiceContainer> OnContainerReady;
         private static Injector _injector;
 
-        private readonly ServiceRegister _register;
-        private static Queue<IDependent> _earlyDependents;
+        private ServiceRegister _register = new ServiceRegister();
+        private static Queue<IDependent> _earlyDependents = new Queue<IDependent>();
 
-        public FlumeServiceContainer() {
-            _earlyDependents = new Queue<IDependent>();
-            _register = new ServiceRegister();
-        }
-
-        internal object Resolve(Type dependentType) {
+        internal object Resolve(Type dependentType, IDependent dependent) {
             try {
                 return _register.Resolve(dependentType);
             } catch (MissingServiceException) {
-                throw new MissingDependencyException(dependentType);
+                throw new MissingDependencyException(dependentType, dependent);
             }
         }
 
@@ -67,6 +62,7 @@ namespace AIR.Flume {
             InjectThis(dependentBehaviour as IDependent);
         
         private static void InjectThis(IDependent dependentBehaviour) {
+            
             if(_injector == null && _earlyDependents != null)
                 _earlyDependents.Enqueue(dependentBehaviour);
             else 
@@ -74,6 +70,7 @@ namespace AIR.Flume {
         }
 
         private void Awake() {
+
             OnContainerReady?.Invoke(this);
             
             _injector = new Injector(this);

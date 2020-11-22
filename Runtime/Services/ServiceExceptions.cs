@@ -13,11 +13,14 @@ namespace AIR.Flume {
                                           $"Use ReplaceService collision was if intentional.";
     }
 
-    public class MissingDependencyException : Exception {
+    internal class MissingDependencyException : Exception {
         private readonly Type _missingDependencyType;
-        public override string Message => $"No dependency of type {_missingDependencyType.Name} was registered";
+        private IDependent _dependent;
+        public override string Message => $"{_missingDependencyType.Name} not registered, but Injected by {_dependent.GetType().Name}.";
 
-        public MissingDependencyException(Type missingDependencyType) {
+        public MissingDependencyException(Type missingDependencyType, IDependent dependent)
+        {
+            _dependent = dependent;
             _missingDependencyType = missingDependencyType;
         }
     }

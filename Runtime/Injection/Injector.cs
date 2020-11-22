@@ -38,7 +38,7 @@ namespace AIR.Flume {
                 
                 var dependentServices = new List<object>();
                 foreach (var dependentType in typeDependencies) {
-                    var service = _container.Resolve(dependentType);
+                    var service = _container.Resolve(dependentType, dependent);
                     dependentServices.Add(service);
                 }
         
