@@ -1,14 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿// Copyright (c) AIR Pty Ltd. All rights reserved.
 
-namespace AIR.Flume {
-    public class Dependent : IDependent{
-
-        public Dependent() => 
+namespace AIR.Flume
+{
+    public class Dependent : IDependent
+    {
+        protected Dependent() =>
             FlumeServiceContainer.InjectThis(this);
-
-    }    
+    }
 }
-
-

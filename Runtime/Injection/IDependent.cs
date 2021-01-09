@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿// Copyright (c) AIR Pty Ltd. All rights reserved.
 
-namespace AIR.Flume {
-
+namespace AIR.Flume
+{
     internal interface IDependent { }
-
 }

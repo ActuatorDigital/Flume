@@ -1,10 +1,13 @@
-using UnityEngine.TestTools;
+﻿// Copyright (c) AIR Pty Ltd. All rights reserved.
+
+using AIR.Flume;
 using NUnit.Framework;
 using UnityEngine;
-using AIR.Flume;
+using UnityEngine.TestTools;
+using Object = UnityEngine.Object;
 
 [TestFixture]
-public class DependentBehaviourTests
+public class ScriptableDependentTests
 {
     private FlumeServiceContainer _container;
 
@@ -22,85 +25,82 @@ public class DependentBehaviourTests
     }
 
     [Test]
-    public void Instantiation_NoInjectMethodOrContainer_ThrowsNoErrors()
+    public void Creation_NoInjectMethodOrContainer_ThrowsNoErrors()
     {
         // Act
-        TestDelegate td = () => new GameObject("Test", typeof(MockIndependentBehaviour));
+        TestDelegate td = () => new GameObject(
+            nameof(Creation_NoInjectMethodOrContainer_ThrowsNoErrors),
+            typeof(MockBehaviourWithScriptableObjectField));
 
         // Assert
         Assert.DoesNotThrow(td);
     }
 
-    private class MockIndependentBehaviour : DependentBehaviour { }
+    private class MockIndependentScriptableDependent : ScriptableDependent
+    {
+        public bool InjectCalled;
+        private void Inject() => InjectCalled = true;
+    }
 
     [Test]
-    public void Instantiation_WithInjectionInChild_CallsInjectOnInstance()
+    public void AddComponent_WithInjectionInScriptableObjectField_CallsInjectOnInstance()
     {
         // Act
-        var waker = new GameObject("AwakeTest")
-            .AddComponent<MockDependentBehaviourWithAwakeAndPrivateInject>();
+        var waker = new GameObject(
+                nameof(AddComponent_WithInjectionInScriptableObjectField_CallsInjectOnInstance))
+            .AddComponent<MockBehaviourWithScriptableObjectField>();
 
         Assert.IsTrue(waker.Injected);
     }
 
-    [Test]
-    public void Instantiation_WithStartInChild_StartsChildClass()
+    private class MockBehaviourWithScriptableObjectField : MonoBehaviour
     {
-        // Act
-        var waker = new GameObject("AwakeTest")
-            .AddComponent<MockDependentBehaviourWithAwakeAndPrivateInject>();
+        private MockIndependentScriptableDependent _dependentScriptableObject;
 
-        Assert.IsTrue(waker.Injected);
-    }
+        public void Awake() => _dependentScriptableObject = ScriptableObject
+            .CreateInstance<MockIndependentScriptableDependent>();
 
-    private class MockDependentBehaviourWithAwakeAndPrivateInject : DependentBehaviour
-    {
-        public bool Started = false, Injected = false;
-        void Inject() => Injected = true;
-        void Start() => Started = true;
+        public bool Injected => _dependentScriptableObject.InjectCalled;
     }
 
     [Test]
-    public void Instantiation_WithMissingDependents_LogsMissingDependencyException()
+    public void CreateInstance_WithMissingDependents_LogsMissingDependencyException()
     {
         // Arrange
         bool thrown = false;
         Application.logMessageReceived += LogAssert();
 
         // Act
-        new GameObject("MissingDependency")
-            .AddComponent<MockDependentBehaviour>();
+        ScriptableObject.CreateInstance<MockScriptableDependent>();
 
         // Assert
         Assert.IsTrue(thrown);
         Application.logMessageReceived -= LogAssert();
-        Application.LogCallback LogAssert()
-        {
+        Application.LogCallback LogAssert() {
             return (condition, trace, type) => {
                 thrown =
                     type == LogType.Exception &&
                     condition.Contains(nameof(MissingDependencyException));
                 if (thrown)
-                    UnityEngine.TestTools.LogAssert.Expect(LogType.Exception, condition);
+                    UnityEngine.TestTools.LogAssert.Expect(type, condition);
             };
         }
     }
 
     [Test]
-    public void Instantiation_WithDependencies_InjectsDependencies()
+    public void CreateInstance_WithDependencies_InjectsDependencies()
     {
         // Arrange
         _container.Register<MockService>();
 
         // Act
-        var dependent = new GameObject("Dependent")
-            .AddComponent<MockDependentBehaviour>();
+        var dependent = ScriptableObject.CreateInstance<MockScriptableDependent>();
 
         // Assert
         Assert.IsTrue(dependent.InjectionCalled);
     }
 
-    private class MockDependentBehaviour : DependentBehaviour
+    private class MockScriptableDependent : ScriptableDependent
     {
         public bool InjectionCalled = false;
 
@@ -109,20 +109,20 @@ public class DependentBehaviourTests
     }
 
     [Test]
-    public void Instantiation_WithDependencies_DeliversDependenciesBeforeUnityLifecycle()
+    public void CreateInstance_WithDependencies_DeliversDependenciesBeforeUnityLifecycle()
     {
         // Arrange
         _container.Register<MockService>();
 
         // Act
-        var lifecycle = new GameObject("LifecycleMock")
-            .AddComponent<MockLifecycleTrackingDependentBehaviour>();
+        var lifecycle = ScriptableObject
+            .CreateInstance<MockLifecycleTrackingScriptableDependent>();
 
         // Assert
         Assert.IsTrue(lifecycle.InjectRanFirst);
     }
 
-    private class MockLifecycleTrackingDependentBehaviour : DependentBehaviour
+    private class MockLifecycleTrackingScriptableDependent : ScriptableDependent
     {
         public bool InjectRanFirst = true;
         private bool _injected;
@@ -130,7 +130,6 @@ public class DependentBehaviourTests
         void Inject() => _injected = true;
 
         public void OnEnable() => FlagInjectRanLate();
-        public void Start() => FlagInjectRanLate();
 
         private void FlagInjectRanLate()
         {
@@ -146,15 +145,15 @@ public class DependentBehaviourTests
         _container.Register<DifferentMockService>();
 
         // Act
-        var differentInjectedDecedent = new GameObject("Decedent")
-            .AddComponent<DifferentMockInjectedAncestor>();
+        var differentInjectedDecedent = ScriptableObject
+            .CreateInstance<DifferentMockInjectedAncestor>();
 
         // Assert
         Assert.IsTrue(differentInjectedDecedent.AncestorInjected);
         Assert.IsTrue(differentInjectedDecedent.DifferentAncestorInjected);
     }
 
-    private class MockInjectedAncestor : DependentBehaviour
+    private class MockInjectedAncestor : ScriptableDependent
     {
         public bool AncestorInjected = false;
 
