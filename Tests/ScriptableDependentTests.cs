@@ -76,8 +76,10 @@ public class ScriptableDependentTests
         // Assert
         Assert.IsTrue(thrown);
         Application.logMessageReceived -= LogAssert();
-        Application.LogCallback LogAssert() {
-            return (condition, trace, type) => {
+        Application.LogCallback LogAssert()
+        {
+            return (condition, trace, type) =>
+            {
                 thrown =
                     type == LogType.Exception &&
                     condition.Contains(nameof(MissingDependencyException));
@@ -170,4 +172,43 @@ public class ScriptableDependentTests
     private class MockService { }
 
     private class DifferentMockService { }
+
+    [Test]
+    public void Dependent_WithSOServiceDependencies_CreatesInstanceAndInjectsDependencies()
+    {
+        // Arrange
+        _container.Register<IMockScriptableObjectService, MockScriptableObjectService>();
+
+        // Act
+        var dependent = new MockSOServiceDependent();
+
+        // Assert
+        Assert.IsTrue(dependent.InjectionCalled);
+    }
+
+    private interface IMockScriptableObjectService { }
+
+    private class MockScriptableObjectService : ScriptableObject, IMockScriptableObjectService { }
+
+    private class MockSOServiceDependent : Dependent
+    {
+        public bool InjectionCalled = false;
+
+        public void Inject(IMockScriptableObjectService mockService) =>
+            InjectionCalled = true;
+    }
+
+    [Test]
+    public void Dependent_WithPreMadeSOServiceDependencies_InjectsDependencies()
+    {
+        // Arrange
+        var SOService = ScriptableObject.CreateInstance<MockScriptableObjectService>();
+        _container.Register<IMockScriptableObjectService>(SOService);
+
+        // Act
+        var dependent = new MockSOServiceDependent();
+
+        // Assert
+        Assert.IsTrue(dependent.InjectionCalled);
+    }
 }
