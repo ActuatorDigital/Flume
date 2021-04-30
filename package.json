@@ -3,6 +3,8 @@
   "displayName": "AIR.Flume",
   "version": "0.0.4",
   "unity": "2019.2",
+  "author": "An Imagined Reality",
+  "homepage": "https://github.com/AnImaginedReality/Flume",
   "keywords": [
     "Dependency Injection",
     "An Imagined Reality",
