@@ -39,6 +39,9 @@ namespace AIR.Flume
                 if (monoBehaviour == null)
                     monoBehaviour = gameObject.AddComponent(typeof(TImplementation));
                 _register.Register(monoBehaviour as TService);
+
+            } else if (typeof(TImplementation).IsSubclassOf(typeof(ScriptableObject))) {
+                _register.Register(ScriptableObject.CreateInstance(typeof(TImplementation)) as TService);
             } else {
                 _register.Register<TService, TImplementation>();
             }
