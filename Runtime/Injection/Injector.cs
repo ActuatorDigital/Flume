@@ -1,5 +1,6 @@
 ﻿// Copyright (c) AIR Pty Ltd. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,9 @@ namespace AIR.Flume
         private const string INJECT = "Inject";
         private readonly FlumeServiceContainer _container;
 
+        private readonly Dictionary<Type, InjectMethodAndArgumentsSet> _cachedInjectSets =
+            new Dictionary<Type, InjectMethodAndArgumentsSet>();
+
         public Injector(FlumeServiceContainer container)
         {
             _container = container;
@@ -19,34 +23,73 @@ namespace AIR.Flume
 
         internal void InjectDependencies(IDependent dependent)
         {
-            if (_container == null) {
+            if (_container == null)
+            {
                 Debug.LogWarning(
                     "Skipping Injection. " +
                     "No UnityServiceContainer container found in scene.");
                 return;
             }
 
-            var publicMethods = dependent.GetType().GetMethods();
-            var privateMethods = dependent.GetType().GetMethods(
-                BindingFlags.NonPublic | BindingFlags.Instance);
-            var methods = publicMethods
-                .Concat(privateMethods)
-                .Distinct();
-            foreach (var injectMethod in methods) {
+            var dependentType = dependent.GetType();
+
+            if (!_cachedInjectSets.TryGetValue(dependentType, out var injectMethodAndArguments))
+            {
+                CacheAndInjectDependencies(dependent, dependentType);
+
+                return;
+            }
+
+            foreach (var injectMethod in injectMethodAndArguments)
+            {
+                injectMethod.Method.Invoke(dependent, injectMethod.Args);
+            }
+        }
+
+        private void CacheAndInjectDependencies(IDependent dependent, Type dependentType)
+        {
+            InjectMethodAndArgumentsSet injectMethodAndArguments;
+            var methods = dependentType.GetMethods(
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+
+            injectMethodAndArguments = new InjectMethodAndArgumentsSet();
+
+            foreach (var injectMethod in methods)
+            {
                 if (injectMethod.Name != INJECT) continue;
-                var typeDependencies = injectMethod
+                var injectArgTypes = injectMethod
                     .GetParameters()
                     .Select(p => p.ParameterType)
                     .ToArray();
 
                 var dependentServices = new List<object>();
-                foreach (var dependentType in typeDependencies) {
-                    var service = _container.Resolve(dependentType, dependent);
+                foreach (var injectArgType in injectArgTypes)
+                {
+                    var service = _container.Resolve(injectArgType, dependent);
                     dependentServices.Add(service);
                 }
 
-                injectMethod.Invoke(dependent, dependentServices.ToArray());
+                var depArrayArgs = dependentServices.ToArray();
+                injectMethod.Invoke(dependent, depArrayArgs);
+
+                injectMethodAndArguments.Add(new InjectMethodAndArguments(injectMethod, depArrayArgs));
             }
+
+            _cachedInjectSets[dependentType] = injectMethodAndArguments;
+        }
+
+        internal class InjectMethodAndArgumentsSet : List<InjectMethodAndArguments> { }
+
+        internal class InjectMethodAndArguments
+        {
+            public InjectMethodAndArguments(MethodInfo method, object[] args)
+            {
+                Method = method;
+                Args = args;
+            }
+
+            public MethodInfo Method { get; private set; }
+            public object[] Args { get; private set; }
         }
     }
 }
