@@ -21,14 +21,13 @@ namespace AIR.Flume
     {
         private readonly Type _missingDependencyType;
         private IDependent _dependent;
-
-        public override string Message =>
-            $"{_missingDependencyType.Name} not registered, but Injected by {_dependent.GetType().Name}.";
-
         public MissingDependencyException(Type missingDependencyType, IDependent dependent)
         {
             _dependent = dependent;
             _missingDependencyType = missingDependencyType;
         }
+
+        public override string Message =>
+            $"{_missingDependencyType.Name} not registered, but Injected by {_dependent.GetType().Name}.";
     }
 }

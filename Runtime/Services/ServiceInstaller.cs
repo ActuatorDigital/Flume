@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿// Copyright (c) AIR Pty Ltd. All rights reserved.
+
+using UnityEngine;
 
 namespace AIR.Flume
 {
@@ -7,7 +9,7 @@ namespace AIR.Flume
     {
         protected abstract void InstallServices(FlumeServiceContainer container);
 
-        void Awake() => gameObject
+        private void Awake() => gameObject
             .GetComponent<FlumeServiceContainer>()
             .OnContainerReady += InstallServices;
     }
