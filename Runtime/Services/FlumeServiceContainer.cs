@@ -9,13 +9,22 @@ namespace AIR.Flume
 {
     public class FlumeServiceContainer : MonoBehaviour
     {
+        private static readonly Queue<IDependent> _earlyDependents = new Queue<IDependent>();
         private static Injector _injector;
-        private static Queue<IDependent> _earlyDependents = new Queue<IDependent>();
+        private readonly ServiceRegister _register = new ServiceRegister();
 
-        private ServiceRegister _register = new ServiceRegister();
-
-        public event Action<FlumeServiceContainer> OnContainerReady;
-
+        private Action<FlumeServiceContainer> _onContainerReady;
+        public event Action<FlumeServiceContainer> OnContainerReady
+        {
+            add {
+                if (_injector != null)
+                    value.Invoke(this);
+                else
+                    _onContainerReady += value;
+            }
+            remove => _onContainerReady -= value;
+        }
+        
         public static void InjectThis(Dependent dependent) =>
             InjectThis(dependent as IDependent);
 
@@ -90,7 +99,7 @@ namespace AIR.Flume
 
         private void Awake()
         {
-            OnContainerReady?.Invoke(this);
+            _onContainerReady?.Invoke(this);
 
             _injector = new Injector(this);
             while (_earlyDependents.Count > 0) {
