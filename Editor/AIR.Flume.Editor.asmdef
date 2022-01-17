@@ -1,0 +1,19 @@
+{
+    "name": "AIR.Flume.Editor",
+    "rootNamespace": "",
+    "references": [
+        "AIR.Flume",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
