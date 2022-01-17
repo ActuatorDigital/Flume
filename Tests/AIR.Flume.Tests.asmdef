@@ -1,5 +1,6 @@
 {
     "name": "AIR.Flume.Tests",
+    "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",

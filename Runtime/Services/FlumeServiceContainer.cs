@@ -82,6 +82,12 @@ namespace AIR.Flume
             }
         }
 
+        public static void CleanStatics()
+        {
+            _injector = null;
+            _earlyDependents.Clear();
+        }
+
         private static void InjectThis(IDependent dependentBehaviour)
         {
             if (_injector == null && _earlyDependents != null)
@@ -92,9 +98,8 @@ namespace AIR.Flume
 
         private void OnDestroy()
         {
-            _injector = null;
+            CleanStatics();
             _register.Dispose();
-            _earlyDependents.Clear();
         }
 
         private void Awake()
