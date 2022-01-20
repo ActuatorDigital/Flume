@@ -9,23 +9,22 @@ namespace AIR.Flume
 {
     public class FlumeServiceContainer : MonoBehaviour
     {
+        private static readonly Queue<IDependent> _earlyDependents = new Queue<IDependent>();
+        private static Injector _injector;
+        private readonly ServiceRegister _register = new ServiceRegister();
+
         private Action<FlumeServiceContainer> _onContainerReady;
         public event Action<FlumeServiceContainer> OnContainerReady
         {
-            add
-            {
-                _onContainerReady += value;
+            add {
                 if (_injector != null)
                     value.Invoke(this);
+                else
+                    _onContainerReady += value;
             }
             remove => _onContainerReady -= value;
         }
-
-        private static Injector _injector;
-        private static Queue<IDependent> _earlyDependents = new Queue<IDependent>();
-
-        private ServiceRegister _register = new ServiceRegister();
-
+        
         public static void InjectThis(Dependent dependent) =>
             InjectThis(dependent as IDependent);
 
