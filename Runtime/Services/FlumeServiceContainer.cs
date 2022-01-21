@@ -82,12 +82,6 @@ namespace AIR.Flume
             }
         }
 
-        public static void CleanStatics()
-        {
-            _injector = null;
-            _earlyDependents.Clear();
-        }
-
         private static void InjectThis(IDependent dependentBehaviour)
         {
             if (_injector == null && _earlyDependents != null)
@@ -101,6 +95,17 @@ namespace AIR.Flume
             CleanStatics();
             _register.Dispose();
         }
+
+        private static void CleanStatics()
+        {
+            _injector = null;
+            _earlyDependents.Clear();
+        }
+
+#if UNITY_EDITOR
+        public static void EditorCleanStatics()
+            => CleanStatics();
+#endif
 
         private void Awake()
         {
