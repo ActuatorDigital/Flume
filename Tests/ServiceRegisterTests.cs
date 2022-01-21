@@ -1,5 +1,6 @@
 ﻿using AIR.Flume;
 using NUnit.Framework;
+using System;
 using UnityEngine;
 
 [TestFixture]
@@ -102,7 +103,6 @@ public class ServiceRegisterTests
         Assert.AreEqual(typeof(MockService), service.GetType());
     }
 
-
     [Test]
     public void Resolve_ServiceNotRegistered_ThrowsMissingServiceException()
     {
@@ -130,9 +130,164 @@ public class ServiceRegisterTests
         Assert.IsNotNull(service);
     }
 
-    private class MockService : IMockService { }
+    [Test]
+    public void Dispose_WhenNoRegisters_ShouldNotThrow()
+    {
+        // Arrange
+        var register = new ServiceRegister();
 
-    private class MockServiceAlternate : IMockService { }
+        // Act
+        void Act() => register.Dispose();
 
-    private interface IMockService { }
+        // Assert
+        Assert.DoesNotThrow(Act);
+    }
+
+    [Test]
+    public void Dispose_WhenNoIDisposablesRegistered_ShouldNotThrow()
+    {
+        // Arrange
+        var register = new ServiceRegister();
+        register.Register<IMockService>(new MockService());
+
+        // Act
+        void Act() => register.Dispose();
+
+        // Assert
+        Assert.DoesNotThrow(Act);
+    }
+
+    [Test]
+    public void Dispose_WhenIDisposableRegistered_ShouldCallServiceDispose()
+    {
+        // Arrange
+        var register = new ServiceRegister();
+        register.Register<IMockService, MockDisposeThrowService>();
+
+        // Act
+        void Act() => register.Dispose();
+
+        // Assert
+        Assert.Throws<MockDisposeThrowService.MockDisposeThrowServiceException>(Act);
+    }
+
+    [Test]
+    public void Dispose_WhenIDisposableRegisteredManual_ShouldCallServiceDispose()
+    {
+        // Arrange
+        var register = new ServiceRegister();
+        register.Register<IMockService>(new MockDisposeThrowService());
+
+        // Act
+        void Act() => register.Dispose();
+
+        // Assert
+        Assert.Throws<MockDisposeThrowService.MockDisposeThrowServiceException>(Act);
+    }
+
+    [Test]
+    public void Dispose_WhenMultipleIDisposableRegistered_ShouldCallAllServiceDisposes()
+    {
+        // Arrange
+        const int EXPECTED_COUNT = 1;
+        var register = new ServiceRegister();
+        var disposedCount = 0;
+        var delegateService = new MockDisposeDelegateService(() => disposedCount++);
+        register.Register<IMockService>(delegateService);
+        var anotherDisposedCount = 0;
+        var anotherDelegateService = new MockDisposeDelegateService(() => anotherDisposedCount++);
+        register.Register<IAnotherMockService>(anotherDelegateService);
+
+        // Act
+        register.Dispose();
+
+        // Assert
+        Assert.AreEqual(EXPECTED_COUNT, disposedCount);
+        Assert.AreEqual(EXPECTED_COUNT, anotherDisposedCount);
+    }
+
+    [Test]
+    public void Dispose_WhenSingleIDisposableConcretionRegisteredAsMultipleInterfaces_ShouldCallServiceDisposeOnce()
+    {
+        // Arrange
+        const int EXPECTED_COUNT = 1;
+        var register = new ServiceRegister();
+        var disposedCount = 0;
+        var delegateService = new MockDisposeDelegateService(() => disposedCount++);
+        register.Register<IMockService>(delegateService);
+        register.Register<IAnotherMockService>(delegateService);
+
+        // Act
+        register.Dispose();
+
+        // Assert
+        Assert.AreEqual(EXPECTED_COUNT, disposedCount);
+    }
+
+    [Test]
+    public void Resolve_WhenSameConcretionRegisteredForTwoService_ShouldReturnSameObjectForBothResolves()
+    {
+        // Arrange
+        var register = new ServiceRegister();
+        var comboService = new MockComboService();
+        register.Register<IMockService>(comboService);
+        register.Register<IAnotherMockService>(comboService);
+
+        // Act
+        var mock = register.Resolve<IMockService>();
+        var anotherMock = register.Resolve<IAnotherMockService>();
+
+        // Assert
+        Assert.AreSame(comboService, mock);
+        Assert.AreSame(comboService, anotherMock);
+        Assert.AreSame(mock, anotherMock);
+    }
+
+    internal class MockDisposeThrowService : IMockService, IDisposable
+    {
+        [Serializable]
+        public class MockDisposeThrowServiceException : Exception
+        {
+            public MockDisposeThrowServiceException()
+            { }
+        }
+
+        public void Dispose()
+        {
+            throw new MockDisposeThrowServiceException();
+        }
+    }
+
+    internal class MockDisposeDelegateService : IMockService, IAnotherMockService, IDisposable
+    {
+        private System.Action _action;
+
+        public MockDisposeDelegateService(Action action) => _action = action;
+
+        public void Dispose() => _action?.Invoke();
+    }
+
+    internal class AnotherMockDisposeDelegateService : IAnotherMockService, IDisposable
+    {
+        private System.Action _action;
+
+        public AnotherMockDisposeDelegateService(Action action) => _action = action;
+
+        public void Dispose() => _action?.Invoke();
+    }
+
+    private class MockService : IMockService
+    { }
+
+    private class MockServiceAlternate : IMockService
+    { }
+
+    private class MockComboService : IMockService, IAnotherMockService
+    { }
+
+    private interface IMockService
+    { }
+
+    private interface IAnotherMockService
+    { }
 }

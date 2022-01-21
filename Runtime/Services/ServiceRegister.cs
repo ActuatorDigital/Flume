@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("AIR.Flume.Tests")]
@@ -9,7 +10,7 @@ namespace AIR.Flume
 {
     public class ServiceRegister : IDisposable
     {
-        private Dictionary<Type, object> _services = new Dictionary<Type, object>();
+        private readonly Dictionary<Type, object> _services = new Dictionary<Type, object>();
 
 #if UNITY_INCLUDE_TESTS
         public void Replace<TService, TImplementation>()
@@ -69,6 +70,8 @@ namespace AIR.Flume
 
         public void Dispose()
         {
+            var toDispose = GatherAllDisposables();
+            DisposeAll(toDispose);
             _services.Clear();
         }
 
@@ -91,6 +94,20 @@ namespace AIR.Flume
         {
             if (_services.ContainsKey(typeof(T)))
                 throw new ServiceCollisionException<T>();
+        }
+
+        private IEnumerable<IDisposable> GatherAllDisposables()
+            => _services
+                .Where(x => x.Value is IDisposable)
+                .Select(x => x.Value as IDisposable)
+                .Distinct();
+
+        private void DisposeAll(IEnumerable<IDisposable> toDispose)
+        {
+            foreach (var dis in toDispose)
+            {
+                dis.Dispose();
+            }
         }
     }
 }
