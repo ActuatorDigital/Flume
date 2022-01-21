@@ -31,7 +31,7 @@ namespace AIR.Flume.Editor
 
             public void TestFinished(ITestResultAdaptor result)
             {
-                FlumeServiceContainer.CleanStatics();
+                FlumeServiceContainer.EditorCleanStatics();
             }
         }
     }
