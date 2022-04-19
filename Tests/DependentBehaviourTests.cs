@@ -1,7 +1,6 @@
-using UnityEngine.TestTools;
+using AIR.Flume;
 using NUnit.Framework;
 using UnityEngine;
-using AIR.Flume;
 
 [TestFixture]
 public class DependentBehaviourTests
@@ -31,7 +30,8 @@ public class DependentBehaviourTests
         Assert.DoesNotThrow(td);
     }
 
-    private class MockIndependentBehaviour : DependentBehaviour { }
+    private class MockIndependentBehaviour : DependentBehaviour
+    { }
 
     [Test]
     public void Instantiation_WithInjectionInChild_CallsInjectOnInstance()
@@ -43,21 +43,11 @@ public class DependentBehaviourTests
         Assert.IsTrue(waker.Injected);
     }
 
-    [Test]
-    public void Instantiation_WithStartInChild_StartsChildClass()
-    {
-        // Act
-        var waker = new GameObject("AwakeTest")
-            .AddComponent<MockDependentBehaviourWithAwakeAndPrivateInject>();
-
-        Assert.IsTrue(waker.Injected);
-    }
-
     private class MockDependentBehaviourWithAwakeAndPrivateInject : DependentBehaviour
     {
-        public bool Started = false, Injected = false;
-        void Inject() => Injected = true;
-        void Start() => Started = true;
+        public bool Injected = false;
+
+        private void Inject() => Injected = true;
     }
 
     [Test]
@@ -76,7 +66,8 @@ public class DependentBehaviourTests
         Application.logMessageReceived -= LogAssert();
         Application.LogCallback LogAssert()
         {
-            return (condition, trace, type) => {
+            return (condition, trace, type) =>
+            {
                 thrown =
                     type == LogType.Exception &&
                     condition.Contains(nameof(MissingDependencyException));
@@ -127,9 +118,10 @@ public class DependentBehaviourTests
         public bool InjectRanFirst = true;
         private bool _injected;
 
-        void Inject() => _injected = true;
+        private void Inject() => _injected = true;
 
         public void OnEnable() => FlagInjectRanLate();
+
         public void Start() => FlagInjectRanLate();
 
         private void FlagInjectRanLate()
@@ -146,12 +138,12 @@ public class DependentBehaviourTests
         _container.Register<DifferentMockService>();
 
         // Act
-        var differentInjectedDecedent = new GameObject("Decedent")
+        var differentInjectedDescendant = new GameObject("Descendant")
             .AddComponent<DifferentMockInjectedAncestor>();
 
         // Assert
-        Assert.IsTrue(differentInjectedDecedent.AncestorInjected);
-        Assert.IsTrue(differentInjectedDecedent.DifferentAncestorInjected);
+        Assert.IsTrue(differentInjectedDescendant.AncestorInjected);
+        Assert.IsTrue(differentInjectedDescendant.DifferentAncestorInjected);
     }
 
     private class MockInjectedAncestor : DependentBehaviour
@@ -168,7 +160,9 @@ public class DependentBehaviourTests
         public void Inject(DifferentMockService mock) => DifferentAncestorInjected = true;
     }
 
-    private class MockService { }
+    private class MockService
+    { }
 
-    private class DifferentMockService { }
+    private class DifferentMockService
+    { }
 }

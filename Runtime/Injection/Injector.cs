@@ -53,6 +53,7 @@ namespace AIR.Flume
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 
             injectMethodAndArguments = new InjectMethodAndArgumentsSet();
+            var injectExceptions = new List<Exception>();
 
             foreach (var injectMethod in methods)
             {
@@ -70,15 +71,33 @@ namespace AIR.Flume
                 }
 
                 var depArrayArgs = dependentServices.ToArray();
-                injectMethod.Invoke(dependent, depArrayArgs);
+                try
+                {
+                    injectMethod.Invoke(dependent, depArrayArgs);
+                }
+                catch (Exception e)
+                {
+                    injectExceptions.Add(e);
+                }
 
                 injectMethodAndArguments.Add(new InjectMethodAndArguments(injectMethod, depArrayArgs));
             }
 
+            HandleInjectExceptions(dependentType, injectExceptions);
+
             _cachedInjectSets[dependentType] = injectMethodAndArguments;
         }
 
-        internal class InjectMethodAndArgumentsSet : List<InjectMethodAndArguments> { }
+        private void HandleInjectExceptions(Type dependentType, List<Exception> injectExceptions)
+        {
+            if (injectExceptions.Count > 0)
+            {
+                throw new DuringInjectException(dependentType, new AggregateException(injectExceptions));
+            }
+        }
+
+        internal class InjectMethodAndArgumentsSet : List<InjectMethodAndArguments>
+        { }
 
         internal class InjectMethodAndArguments
         {
