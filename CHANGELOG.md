@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - FlumeServiceContainer can now auto create ScriptableObject TImplementations, as it does for MonoBehaviour.
+- Specific Exceptions wrapped and thrown during Register, Inject, and ServiceInstall.
 - Add CHANGELOG.md.
 - Add README.md.
 

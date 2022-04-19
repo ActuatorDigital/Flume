@@ -9,8 +9,24 @@ namespace AIR.Flume
     {
         protected abstract void InstallServices(FlumeServiceContainer container);
 
+        protected virtual void OnException(System.Exception ex)
+        { }
+
         private void Awake() => gameObject
             .GetComponent<FlumeServiceContainer>()
-            .OnContainerReady += InstallServices;
+            .OnContainerReady += TryInstallServices;
+
+        private void TryInstallServices(FlumeServiceContainer container)
+        {
+            try
+            {
+                InstallServices(container);
+            }
+            catch (System.Exception ex)
+            {
+                OnException(ex);
+                throw new DuringServiceInstallException(ex);
+            }
+        }
     }
 }

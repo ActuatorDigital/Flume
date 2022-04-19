@@ -50,7 +50,7 @@ namespace AIR.Flume
 
         public FlumeServiceContainer Register<TService, TImplementation>()
             where TService : class
-            where TImplementation : TService
+            where TImplementation : class, TService
         {
             if (typeof(TImplementation).IsSubclassOf(typeof(MonoBehaviour)))
             {

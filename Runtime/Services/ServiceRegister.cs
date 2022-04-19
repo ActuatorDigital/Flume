@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("AIR.Flume.Tests")]
+
 namespace AIR.Flume
 {
     public class ServiceRegister : IDisposable
@@ -12,12 +13,13 @@ namespace AIR.Flume
         private Dictionary<Type, object> _services = new Dictionary<Type, object>();
 
 #if UNITY_INCLUDE_TESTS
+
         public void Replace<TService, TImplementation>()
             where TService : class
-            where TImplementation : TService
+            where TImplementation : class, TService
         {
-            var service = Activator.CreateInstance(typeof(TImplementation));
-            Replace<TService>((TImplementation)service);
+            var service = SafeActivate<TService, TImplementation>();
+            Replace<TService>(service);
         }
 
         public void Replace<TService>(TService service)
@@ -41,14 +43,15 @@ namespace AIR.Flume
 
             _services.Add(typeof(TService), service);
         }
+
 #endif
 
         public void Register<TService, TImplementation>()
             where TService : class
-            where TImplementation : TService
+            where TImplementation : class, TService
         {
             CheckServiceCollision<TService>();
-            var service = Activator.CreateInstance(typeof(TImplementation));
+            var service = SafeActivate<TService, TImplementation>();
             _services.Add(typeof(TService), service);
         }
 
@@ -56,7 +59,7 @@ namespace AIR.Flume
             where TImplementation : class
         {
             CheckServiceCollision<TImplementation>();
-            var service = Activator.CreateInstance(typeof(TImplementation));
+            var service = SafeActivate<TImplementation>();
             _services.Add(typeof(TImplementation), service);
         }
 
@@ -91,6 +94,29 @@ namespace AIR.Flume
         {
             if (_services.ContainsKey(typeof(T)))
                 throw new ServiceCollisionException<T>();
+        }
+
+        private TImplementation SafeActivate<TImplementation>()
+            where TImplementation : class
+        {
+            var service = default(object);
+            try
+            {
+                service = Activator.CreateInstance(typeof(TImplementation));
+            }
+            catch (Exception e)
+            {
+                throw new DuringRegisterException(typeof(TImplementation), e);
+            }
+
+            return service as TImplementation;
+        }
+
+        private TService SafeActivate<TService, TImplementation>()
+            where TService : class
+            where TImplementation : class, TService
+        {
+            return SafeActivate<TImplementation>() as TService;
         }
     }
 }

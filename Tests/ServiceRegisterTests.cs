@@ -1,5 +1,6 @@
 ﻿using AIR.Flume;
 using NUnit.Framework;
+using System;
 using UnityEngine;
 
 [TestFixture]
@@ -102,6 +103,18 @@ public class ServiceRegisterTests
         Assert.AreEqual(typeof(MockService), service.GetType());
     }
 
+    [Test]
+    public void Register_WhenImplThrowsDuringCtor_ShouldWrapAndRethrow()
+    {
+        // Arrange
+        var register = new ServiceRegister();
+
+        // Act
+        TestDelegate td = () => register.Register<IMockService, MockCtorThrowService>();
+
+        // Assert
+        Assert.Throws<DuringRegisterException>(td);
+    }
 
     [Test]
     public void Resolve_ServiceNotRegistered_ThrowsMissingServiceException()
@@ -130,9 +143,17 @@ public class ServiceRegisterTests
         Assert.IsNotNull(service);
     }
 
-    private class MockService : IMockService { }
+    private class MockService : IMockService
+    { }
 
-    private class MockServiceAlternate : IMockService { }
+    private class MockServiceAlternate : IMockService
+    { }
 
-    private interface IMockService { }
+    private interface IMockService
+    { }
+
+    private class MockCtorThrowService : IMockService
+    {
+        public MockCtorThrowService() => throw new NotImplementedException();
+    }
 }
