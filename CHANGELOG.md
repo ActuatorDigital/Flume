@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Injector now caches type and method results between calls, improves Inject speed and greatly reduces memory thrashing.
+- ServiceRegister now calls Dispose on all contained IDisposable services.
 
 ### Fixed
 
