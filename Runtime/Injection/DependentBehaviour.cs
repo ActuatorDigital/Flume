@@ -1,8 +1,8 @@
-﻿// Copyright (c) AIR Pty Ltd. All rights reserved.
+﻿// Copyright (c) Actuator Digital Pty Ltd. All rights reserved.
 
 using UnityEngine;
 
-namespace AIR.Flume
+namespace Actuator.Flume
 {
     public abstract class DependentBehaviour : MonoBehaviour, IDependent
     {

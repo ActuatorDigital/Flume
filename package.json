@@ -1,19 +1,18 @@
 {
-  "name": "com.air.flume",
-  "displayName": "AIR.Flume",
-  "version": "0.0.4",
+  "name": "com.actuator.flume",
+  "displayName": "Flume Dependency Injection",
+  "version": "0.1.0",
   "unity": "2019.2",
-  "author": "An Imagined Reality",
-  "homepage": "https://github.com/AnImaginedReality/Flume",
+  "author": "Actuator Digital",
+  "homepage": "https://github.com/ActuatorDigital/Flume",
   "keywords": [
     "Dependency Injection",
-    "An Imagined Reality",
-    "AIR"
+    "Actuator Digital"
   ],
   "dependencies": {
     "com.unity.test-framework": "1.0.13",
     "com.unity.ext.nunit": "1.0.0"
   },
   "relatedPackages": {},
-  "description": "AIR's dependency injection framework."
+  "description": "Actuator's dependency injection framework."
 }

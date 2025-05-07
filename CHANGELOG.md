@@ -15,10 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Injector now caches type and method results between calls, improves Inject speed and greatly reduces memory thrashing.
+- Refactored all instances of AIR.Flume to Actuator.Flume following the company rename.
 
 ### Fixed
 
 - FlumeServiceContainer statics are now automatically cleared between test runs via the added TestListerner in AID.Flume.Editor.
 - Subscribing to OnContainerReady after it has already signaled, now invokes the subscriber immediately.
 
-## [0.0.4] - 2021-01-19
+## [0.1.0] - 2025-05-07

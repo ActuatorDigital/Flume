@@ -1,11 +1,11 @@
-﻿// Copyright (c) AIR Pty Ltd. All rights reserved.
+﻿// Copyright (c) Actuator Digital Ltd. All rights reserved.
 
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("AIR.Flume.Tests")]
-namespace AIR.Flume
+[assembly: InternalsVisibleTo("Actuator.Flume.Tests")]
+namespace Actuator.Flume
 {
     public class ServiceRegister : IDisposable
     {

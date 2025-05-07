@@ -1,7 +1,7 @@
 ﻿using UnityEditor.TestTools.TestRunner.Api;
 using UnityEngine;
 
-namespace AIR.Flume.Editor
+namespace Actuator.Flume.Editor
 {
     public class TestListerner
     {

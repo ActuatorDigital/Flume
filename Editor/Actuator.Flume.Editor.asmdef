@@ -1,8 +1,8 @@
 {
-    "name": "AIR.Flume.Editor",
+    "name": "Actuator.Flume.Editor",
     "rootNamespace": "",
     "references": [
-        "AIR.Flume",
+        "Actuator.Flume",
         "UnityEditor.TestRunner"
     ],
     "includePlatforms": [

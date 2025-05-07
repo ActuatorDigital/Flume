@@ -1,8 +1,8 @@
-﻿// Copyright (c) AIR Pty Ltd. All rights reserved.
+﻿// Copyright (c) Actuator Digital Ltd. All rights reserved.
 
 using System;
 
-namespace AIR.Flume
+namespace Actuator.Flume
 {
     public class MissingServiceException : Exception
     {

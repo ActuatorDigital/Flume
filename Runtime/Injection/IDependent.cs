@@ -1,6 +1,6 @@
-﻿// Copyright (c) AIR Pty Ltd. All rights reserved.
+﻿// Copyright (c) Actuator Digital Pty Ltd. All rights reserved.
 
-namespace AIR.Flume
+namespace Actuator.Flume
 {
     internal interface IDependent { }
 }

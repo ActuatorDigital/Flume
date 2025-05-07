@@ -1,9 +1,8 @@
 ﻿// Copyright (c) AIR Pty Ltd. All rights reserved.
 
-using AIR.Flume;
+using Actuator.Flume;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
 [TestFixture]
